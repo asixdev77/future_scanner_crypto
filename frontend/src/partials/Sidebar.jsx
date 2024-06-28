@@ -164,7 +164,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }) {
                               />
                             </svg>
                             <span className="text-lg font-medium ml-3 duration-200">
-                              Hot Pairs
+                              Hot Signal
                             </span>
                           </div>
                           </Link>
