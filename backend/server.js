@@ -2,7 +2,6 @@ const controller = require('./controller/controller');
 
 let result;
 const getData = (data) => {
-    console.log(data);
     result = data;
 }
 
