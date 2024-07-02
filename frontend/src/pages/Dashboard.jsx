@@ -23,19 +23,8 @@ function Dashboard() {
   //   }
   //   return obj;
   // });
-  socket.on('realTimeData',(data) =>{
-    if(data.status == "ok"){
-      if(data.realTimeData){
-        setData3(data.realTimeData);
-      }else{
-        setData3([]);
-      }
-      console.log(long_data,"status: OK");
-    }else{
-      console.log('status : Error');
-    }
-  })
-  socket.on('token3min', (data) => {
+
+  socket.on('send_token', (data) => {
     if(data.shortTokens){
       setData2(data.shortTokens);
     }
@@ -48,10 +37,16 @@ function Dashboard() {
     else{
       setData1([]);
     }
+    if(data.hotTokens){
+      setData3(data.hotTokens);
+    }
+    else{
+      setData3([]);
+    }
   });
   // console.log(long_data, short_data,hot_data);
   return (
-    <div className="relative flex overflow-hidden h-full">
+    <div className=" relative flex overflow-hidden h-full">
       {/* Sidebar */}
       <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
       {/* Content area */}
