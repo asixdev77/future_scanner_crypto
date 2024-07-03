@@ -4,7 +4,7 @@ import Header from '../partials/Header';
 import { binanceCryptoIcons } from 'binance-icons';
 import { NumericFormat } from 'react-number-format';
 import io from 'socket.io-client';
-var socket = io.connect(`${window.location.hostname}:4000`);
+const socket = io.connect(`${window.location.hostname}:4000`);
 
 function Hot() {
   const [hot_data, setData3] = useState([]);
@@ -15,31 +15,17 @@ function Hot() {
   const default_btcIcon = binanceCryptoIcons.get('cfx');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   var fnial_data = hot_data.filter(item => item.volume > 1000000).sort((a, b) => Number(b.volume) - Number(a.volume));
-
-  const startWebsocket = () => {
-    socket.on('realTimeData',(data) =>{
-      if(data.status == "ok"){
-        if(data.realTimeData){
-          // console.log(data.realTimeData);
-          setData3(data.realTimeData);
-        }else{
-          setData3([]);
-        }
+  socket.on('realTimeData',(data) =>{
+    if(data.status == "ok"){
+      if(data.realTimeData){
+        setData3(data.realTimeData);
       }else{
-        console.log('status : error');
+        setData3([]);
       }
-    })
-    socket.onclose = () => {
-      socket = null;
-      setTimeout(startWebsocket, 5000);
-    };
-    socket.onerror = (error) => {
-      socket = null;
-      setTimeout(startWebsocket, 1000);
-    };
-  }
-  startWebsocket();
-  
+    }else{
+      console.log('status : error');
+    }
+  })
   return (
     <div className="flex h-screen overflow-hidden">
       {/* Sidebar */}
@@ -72,7 +58,7 @@ function Hot() {
               <div className="">
                 {
                   fnial_data.length ? fnial_data.map((item, index) => {
-                    var unKnown = item.symbol.slice(0, -4).toLowerCase();
+                    var unKnown = item.symbol.replace("USDT","").toLowerCase();
                     hasBtc = binanceCryptoIcons.has(unKnown);
                     btcIcon = binanceCryptoIcons.get(unKnown);
                     return (<ul key={index} className="grid grid-cols-4 gap-x-3">
@@ -81,7 +67,7 @@ function Hot() {
                         {
                           hasBtc ? <span dangerouslySetInnerHTML={{ __html: btcIcon.replace('"32"', '"24"') }} /> :
                             <span dangerouslySetInnerHTML={{ __html: default_btcIcon.replace('"32"', '"24"') }} />
-                        }{item.symbol}
+                        }{item.symbol.replace("USDT","")}USDT
                       </li>
                       <li className="text-center text-slate-300">{Number(item.price).toFixed(4)}</li>
                       <li className="text-center text-slate-300">$ <NumericFormat displayType="text" value={Number(item.volume).toFixed(4)} allowLeadingZeros thousandSeparator="," /></li>
