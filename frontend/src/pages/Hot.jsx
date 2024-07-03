@@ -20,7 +20,7 @@ function Hot() {
     socket.on('realTimeData',(data) =>{
       if(data.status == "ok"){
         if(data.realTimeData){
-          // console.log(data.realTimeTokens);
+          // console.log(data.realTimeData);
           setData3(data.realTimeData);
         }else{
           setData3([]);
