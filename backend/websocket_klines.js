@@ -4,7 +4,7 @@ exports.getRealTimeData =async (getData) => {
 
   var longTokens = {};
   var shortTokens = {};
-  var history = [];
+  var history = {};
 
   const changePercent = (a, b) => {
     return Number(( ( b - a ) * 100 / a ).toFixed(4));
@@ -70,16 +70,14 @@ exports.getRealTimeData =async (getData) => {
             change: realdata.change,
           };
           //----------------------------put data to history-----------------------------------------//
-          if( history.find(item => item.symbol.toString() === realdata.symbol.toString()) ) {
-            const index = history.findIndex(item => item.symbol.toString() === realdata.symbol.toString());
-            if( history[index].openTime.toString() === realdata.openTime.toString() ){
-              history.splice(index, 1);
+          if( history[`${realdata.symbol}`] ) {
+            if( history[`${realdata.symbol}`].at(-1).openTime.toString() === realdata.openTime.toString() ){
+              history[`${realdata.symbol}`].pop();
             }
-            if( history.length >= 100 ){
-              history.shift();
+            if( history[`${realdata.symbol}`].length >= 100 ){
+              history[`${realdata.symbol}`].shift();
             }
-            history.unshift({
-              symbol: realdata.symbol,
+            history[`${realdata.symbol}`].push({
               openTime: realdata.openTime,
               openPrice: realdata.openPrice,
               closeTime: realdata.closeTime,
@@ -91,8 +89,7 @@ exports.getRealTimeData =async (getData) => {
             })
           }
           else{
-            history.unshift({
-              symbol: realdata.symbol,
+            history[`${realdata.symbol}`] = [{
               openTime: realdata.openTime,
               openPrice: realdata.openPrice,
               closeTime: realdata.closeTime,
@@ -101,7 +98,7 @@ exports.getRealTimeData =async (getData) => {
               low: realdata.low,
               volume: realdata.volume,
               change: realdata.change,
-              });
+              }];
           }
           //-----------------------------return data to server.js-----------------------------------------//
           getData({
