@@ -4,7 +4,7 @@ exports.getRealTimeData =async (getData) => {
 
   var longTokens = {};
   var shortTokens = {};
-  var history = [];
+  var history = {};
 
   const changePercent = (a, b) => {
     return Number(( ( b - a ) * 100 / a ).toFixed(4));
@@ -20,7 +20,7 @@ exports.getRealTimeData =async (getData) => {
     const websocketThread = () => {
       //---------------------------------------------if data is confirm to test condition, push it.-----------------------------------------//
       const testData = async ( data ) => {
-        if( Math.abs( changePercent( data.openPrice, data.closePrice ) ) >= 1.5 ) {
+        if( Math.abs( changePercent( data.openPrice, data.closePrice ) ) >= 0.5 ) {
           const kline1d = await axios.get(`https://fapi.binance.com/fapi/v1/klines?symbol=${data.symbol}&interval=1d&limit=1`)      //    a day kline
           if( Number(kline1d?.data[0][7]) >= 1000000 ) {
             const kline1h = await axios.get(`https://fapi.binance.com/fapi/v1/klines?symbol=${data.symbol}&interval=1h&limit=1`);   //    a hour kline
@@ -70,16 +70,14 @@ exports.getRealTimeData =async (getData) => {
             change: realdata.change,
           };
           //----------------------------put data to history-----------------------------------------//
-          if( history.find(item => item.symbol.toString() === realdata.symbol.toString()) ) {
-            const index = history.findIndex(item => item.symbol.toString() === realdata.symbol.toString());
-            if( history[index].openTime.toString() === realdata.openTime.toString() ){
-              history.splice(index, 1);
+          if( history[`${realdata.symbol}`] ) {
+            if( history[`${realdata.symbol}`].at(-1).openTime.toString() === realdata.openTime.toString() ){
+              history[`${realdata.symbol}`].pop();
             }
-            if( history.length >= 100 ){
-              history.shift();
+            if( history[`${realdata.symbol}`].length >= 100 ){
+              history[`${realdata.symbol}`].shift();
             }
-            history.unshift({
-              symbol: realdata.symbol,
+            history[`${realdata.symbol}`].push({
               openTime: realdata.openTime,
               openPrice: realdata.openPrice,
               closeTime: realdata.closeTime,
@@ -91,8 +89,7 @@ exports.getRealTimeData =async (getData) => {
             })
           }
           else{
-            history.unshift({
-              symbol: realdata.symbol,
+            history[`${realdata.symbol}`] = [{
               openTime: realdata.openTime,
               openPrice: realdata.openPrice,
               closeTime: realdata.closeTime,
@@ -101,7 +98,7 @@ exports.getRealTimeData =async (getData) => {
               low: realdata.low,
               volume: realdata.volume,
               change: realdata.change,
-              });
+              }];
           }
           //-----------------------------return data to server.js-----------------------------------------//
           getData({
